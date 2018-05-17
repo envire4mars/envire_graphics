@@ -27,15 +27,20 @@
 #pragma once
 // set define if you want to extend the gui
 //#define PLUGIN_WITH_MARS_GUI
-#include <mars/interfaces/sim/MarsPluginTemplate.h>
-#include <mars/interfaces/MARSDefs.h>
-#include <mars/cfg_manager/CFGManagerInterface.h>
-#include <mars/interfaces/NodeData.h>
 #include <string>
 #include <memory>
 #include <unordered_map>
 #include <boost/functional/hash.hpp>
 #include <boost/uuid/uuid.hpp>
+
+#include <mars/interfaces/sim/MarsPluginTemplate.h>
+#include <mars/interfaces/MARSDefs.h>
+#include <mars/interfaces/NodeData.h>
+
+#include <mars/cfg_manager/CFGManagerInterface.h>
+
+#include <mars/sim/SimNode.h>
+
 #include <smurf/Robot.hpp>
 #include <smurf/Visual.hpp>
 
@@ -46,17 +51,13 @@
 #include <envire_core/graph/TreeView.hpp>
 #include <envire_core/graph/Path.hpp>
 
-#include <mars/sim/SimNode.h>
-#include <vizkit3d/MLSMapVisualization.hpp>
-#include <maps/grid/MLSMap.hpp>
 
-namespace envire {namespace core {
-  class Transform;
-}}
+//#include <vizkit3d/MLSMapVisualization.hpp>
+//#include <maps/grid/MLSMap.hpp>
 
 namespace mars {
   namespace plugins {
-    namespace graph_viz_plugin {
+    namespace envire_graphics {
       //TODO do we need inheritance from MLSMapsVisualization
       /**
        * A very simple plugin that tries to convert all ConfigMaps found in the
@@ -64,14 +65,8 @@ namespace mars {
        * */
       class EnvireGraphViz : public mars::interfaces::MarsPluginTemplate,
                              public envire::core::GraphEventDispatcher,
-                             public envire::core::GraphItemEventDispatcher<envire::core::Item<smurf::Visual>>,
-                             public envire::core::GraphItemEventDispatcher<envire::core::Item<smurf::Frame>>,
-                             public envire::core::GraphItemEventDispatcher<envire::core::Item<::smurf::Collidable>>,
                              public envire::core::GraphItemEventDispatcher<envire::core::Item<::smurf::Joint>>,
-                             public envire::core::GraphItemEventDispatcher<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>,
-                             public envire::core::GraphItemEventDispatcher<envire::core::Item<maps::grid::MLSMapKalman>>,
-                             public envire::core::GraphItemEventDispatcher<envire::core::Item<maps::grid::MLSMapPrecalculated>>,
-                             public vizkit3d::MLSMapVisualization
+                             public envire::core::GraphItemEventDispatcher<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>
       {
 
       public:
@@ -91,51 +86,17 @@ namespace mars {
         
         
         virtual void itemAdded(const envire::core::ItemAddedEvent& e);
-        virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<smurf::Visual>>& e);
-        virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<smurf::Frame>>& e);
-        virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<smurf::Collidable>>& e);
         virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::smurf::Joint>>& e);
-        virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<maps::grid::MLSMapKalman>>& e);
-        virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<maps::grid::MLSMapPrecalculated>>& e);
-        virtual void frameAdded(const envire::core::FrameAddedEvent& e);
+        //virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<maps::grid::MLSMapKalman>>& e);
+        //virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<maps::grid::MLSMapPrecalculated>>& e);
 
         virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>& e);
 
         // CFGClient methods
         virtual void cfgUpdateProperty(cfg_manager::cfgPropertyStruct _property);
       private:
-        
-        /**Add a visual node to the simulation */
-        void addVisual(const smurf::Visual& visual, const envire::core::FrameId& frameId,
-                       const boost::uuids::uuid& uuid);
-
-        /**Adds a mesh visual to the simulation. Only call this method if you are sure that
-         * visual.geometry is a MESH*/
-        void addMesh(const smurf::Visual& visual, const envire::core::FrameId& frameId,
-                     const boost::uuids::uuid& uuid);
-        
-        /**Adds a box visual to the simulation. Only call this method if you are sure that
-         * visual.geometry is a BOX*/
-        void addBox(const smurf::Visual& visual, const envire::core::FrameId& frameId,
-                     const boost::uuids::uuid& uuid);
-        
-        /**Adds a sphere visual to the simulation. Only call this method if you are sure that
-         * visual.geometry is a SPHERE*/
-        void addSphere(const smurf::Visual& visual, const envire::core::FrameId& frameId,
-                      const boost::uuids::uuid& uuid);
-        
-        /**Adds a cylinder visual to the simulation. Only call this method if you are sure that
-         * visual.geometry is a CYLINDER*/
-        void addCylinder(const smurf::Visual& visual, const envire::core::FrameId& frameId,
-                         const boost::uuids::uuid& uuid);
 
         void setNodeDataMaterial(mars::interfaces::NodeData& nodeData, urdf::MaterialSharedPtr material) const;
-
-        /** Set @p origin as the new origin frame.
-          * This will update the tree and recalculate all draw positions.
-          * The new origin item will apear at (0, 0, 0) with identity orientation.
-         */
-        void changeOrigin(const envire::core::FrameId& origin);
         
         /**Recalculates the tree and updates the draw positions of all items
          * @param origin The name of the current origin frame.
@@ -155,7 +116,6 @@ namespace mars {
         /**Maps the item's uuid to the graphics id used for drawing */
         std::unordered_map<boost::uuids::uuid, int, boost::hash<boost::uuids::uuid>> uuidToGraphicsId;
         std::unordered_map<boost::uuids::uuid, int, boost::hash<boost::uuids::uuid>> uuidToGraphicsId2;
-        envire::core::FrameId originId; /**<id of the current origin */
         envire::core::TreeView tree; /**<tree containing all visualized vertices */
         
         //buffers the paths from origin to the nodes to avoid tree searches.
@@ -167,11 +127,11 @@ namespace mars {
         bool viewFrames = false;
         const int visualUpdateRateFps = 30;
         float timeSinceLastUpdateMs = 0; 
-        osg::ref_ptr<osg::Group> osgGroup;
-        osg::ref_ptr<osg::Node>  osgNode;
+        //osg::ref_ptr<osg::Group> osgGroup;
+        //osg::ref_ptr<osg::Node>  osgNode;
         
-        envire::core::FrameId mlsFrameName;
-        osg::PositionAttitudeTransform* visTf;
+        //envire::core::FrameId mlsFrameName;
+        //osg::PositionAttitudeTransform* visTf;
 
 
       }; // end of class definition TestTreeMars

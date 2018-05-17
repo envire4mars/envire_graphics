@@ -13,13 +13,11 @@ pkg_check_modules(PKGCONFIG REQUIRED
                 lib_manager
                 data_broker
                 mars_interfaces
-                envire_core
                 mars_graphics
                 mars_sim
+                envire_core
                 smurf
-                maps
-                maps-viz
-                vizkit3d
+                envire_managers
                 )
                 
 include_directories(${PKGCONFIG_INCLUDE_DIRS})
