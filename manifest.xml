@@ -1,0 +1,18 @@
+<package>
+    <description brief="Graph visualization plugin">
+      Plugin
+   </description>
+    <maintainer>Arne/arne.boeckmann@dfki.de</maintainer>
+    <author>Arne/arne.boeckmann@dfki.de</author>
+    <depend package="simulation/mars/scripts/cmake" />
+    <depend package="simulation/lib_manager" />
+    <depend package="simulation/mars/common/data_broker" />
+    <depend package="simulation/mars/interfaces" />
+    <depend package="envire/envire_core" />
+    <depend package="simulation/mars/graphics" />
+    <depend package="envire/envire_smurf" />
+    <depend package="tools/smurf" />
+    <depend package="simulation/mars/sim" />
+    <depend package="slam/maps" />
+    <tags>needs_opt</tags>
+</package>

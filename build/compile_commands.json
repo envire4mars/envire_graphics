@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/dfki.uni-bremen.de/aborn/DFKI/ROCK/entern/simulation/mars/plugins/envire_graphics/build",
+  "command": "/usr/lib/ccache/c++   -DBASE_LOG_NAMESPACE=envire_graphics -DGIT_INFO -DGIT_INFO_REV=891b009404d503edb839ca5ec7b35539ec030e02 -DGIT_INFO_SRC=\\\"autobuildgit@github.com:/envire/simulation-envire_mars.git\\\" -DQT_SHARED -DdDOUBLE -Denvire_graphics_EXPORTS -I/home/dfki.uni-bremen.de/aborn/DFKI/ROCK/entern/simulation/mars/plugins/envire_graphics/build/include/_envire_graphics_ -I/home/dfki.uni-bremen.de/aborn/DFKI/ROCK/entern/install/include -I/home/dfki.uni-bremen.de/aborn/DFKI/ROCK/entern/install/include/opencv -I/home/dfki.uni-bremen.de/aborn/DFKI/ROCK/entern/install/include/mars_sim -I/home/dfki.uni-bremen.de/aborn/DFKI/ROCK/entern/install/include/pcl-1.8 -I/usr/include/qt4 -I/usr/include/qt4/QtGui -I/usr/include/qt4/QtCore -I/usr/include/ni -I/usr/include/eigen3    -fuse-ld=gold -std=c++11 -fPIC -std=c++11 -Wall -std=c++11 -O2 -g -DNDEBUG -fPIC   -std=c++11 -I/home/dfki.uni-bremen.de/aborn/DFKI/ROCK/entern/install/include -I/home/dfki.uni-bremen.de/aborn/DFKI/ROCK/entern/install/include/pcl-1.8 -I/usr/include/ni -I/usr/include/eigen3 -Wall -Wno-unused-local-typedefs -o CMakeFiles/envire_graphics.dir/src/EnvireGraphViz.cpp.o -c /home/dfki.uni-bremen.de/aborn/DFKI/ROCK/entern/simulation/mars/plugins/envire_graphics/src/EnvireGraphViz.cpp",
+  "file": "/home/dfki.uni-bremen.de/aborn/DFKI/ROCK/entern/simulation/mars/plugins/envire_graphics/src/EnvireGraphViz.cpp"
+}
+]

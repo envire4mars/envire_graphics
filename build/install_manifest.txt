@@ -1,0 +1,3 @@
+/home/dfki.uni-bremen.de/aborn/DFKI/ROCK/entern/install/lib/libenvire_graphics.so
+/home/dfki.uni-bremen.de/aborn/DFKI/ROCK/entern/install/include/mars/plugins/envire_graphics/EnvireGraphViz.h
+/home/dfki.uni-bremen.de/aborn/DFKI/ROCK/entern/install/lib/pkgconfig/envire_graphics.pc
