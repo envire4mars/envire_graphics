@@ -3,7 +3,9 @@
       Plugin
    </description>
     <maintainer>Arne/arne.boeckmann@dfki.de</maintainer>
+    <maintainer>Anna/anna.born@dfki.de</maintainer>
     <author>Arne/arne.boeckmann@dfki.de</author>
+    <author>Anna/anna.born@dfki.de</author>
     <depend package="simulation/mars/scripts/cmake" />
     <depend package="simulation/lib_manager" />
     <depend package="simulation/mars/common/data_broker" />
@@ -13,7 +15,7 @@
     <depend package="envire/envire_core" />
     <depend package="envire/envire_smurf" />
     <depend package="tools/smurf" />
-    <!--<depend package="simulation/envire_managers"/>-->
+    <depend package="simulation/envire_managers"/>
 
     <!--<depend package="slam/maps" />-->
     <tags>needs_opt</tags>
