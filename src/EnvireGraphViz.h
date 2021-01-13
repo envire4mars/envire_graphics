@@ -51,9 +51,8 @@
 #include <envire_core/graph/TreeView.hpp>
 #include <envire_core/graph/Path.hpp>
 
-
-//#include <vizkit3d/MLSMapVisualization.hpp>
-//#include <maps/grid/MLSMap.hpp>
+#include <vizkit3d/MLSMapVisualization.hpp>
+#include <maps/grid/MLSMap.hpp>
 
 namespace mars {
   namespace plugins {
@@ -66,7 +65,9 @@ namespace mars {
       class EnvireGraphViz : public mars::interfaces::MarsPluginTemplate,
                              public envire::core::GraphEventDispatcher,
                              public envire::core::GraphItemEventDispatcher<envire::core::Item<::smurf::Joint>>,
-                             public envire::core::GraphItemEventDispatcher<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>
+                             public envire::core::GraphItemEventDispatcher<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>,
+                             public envire::core::GraphItemEventDispatcher<envire::core::Item<maps::grid::MLSMapPrecalculated>>,
+                             public vizkit3d::MLSMapVisualization
       {
 
       public:
@@ -88,7 +89,7 @@ namespace mars {
         virtual void itemAdded(const envire::core::ItemAddedEvent& e);
         virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::smurf::Joint>>& e);
         //virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<maps::grid::MLSMapKalman>>& e);
-        //virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<maps::grid::MLSMapPrecalculated>>& e);
+        virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<maps::grid::MLSMapPrecalculated>>& e);
 
         virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>& e);
 
@@ -127,11 +128,11 @@ namespace mars {
         bool viewFrames = false;
         const int visualUpdateRateFps = 30;
         float timeSinceLastUpdateMs = 0; 
-        //osg::ref_ptr<osg::Group> osgGroup;
-        //osg::ref_ptr<osg::Node>  osgNode;
-        
-        //envire::core::FrameId mlsFrameName;
-        //osg::PositionAttitudeTransform* visTf;
+
+        osg::ref_ptr<osg::Group> osgGroup;
+        osg::ref_ptr<osg::Node>  osgNode;
+        osg::PositionAttitudeTransform* visTf;
+        envire::core::FrameId mlsFrameName;
 
 
       }; // end of class definition TestTreeMars
