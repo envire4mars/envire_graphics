@@ -18,6 +18,9 @@ pkg_check_modules(PKGCONFIG REQUIRED
                 envire_core
                 smurf
                 envire_managers
+                maps
+                maps-viz
+                vizkit3d
                 )
 
 include_directories(${PKGCONFIG_INCLUDE_DIRS})

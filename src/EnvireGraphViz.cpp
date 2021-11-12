@@ -37,6 +37,9 @@
 #include <mars/plugins/envire_managers/EnvireDefs.hpp>
 #include <mars/plugins/envire_managers/EnvireStorageManager.hpp>
 
+
+
+
 using namespace mars::plugins::envire_graphics;
 using namespace mars::plugins::envire_managers;
 
@@ -61,6 +64,8 @@ EnvireGraphViz::EnvireGraphViz(lib_manager::LibManager *theManager)
 
     GraphItemEventDispatcher<envire::core::Item<::smurf::Joint>>::subscribe(EnvireStorageManager::instance()->getGraph().get());
     GraphItemEventDispatcher<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>::subscribe(EnvireStorageManager::instance()->getGraph().get());
+    GraphItemEventDispatcher<envire::core::Item<maps::grid::MLSMapPrecalculated>>::subscribe(EnvireStorageManager::instance()->getGraph().get());
+
 
     if (!EnvireStorageManager::instance()->getGraph()->containsFrame(SIM_CENTER_FRAME_NAME))
     {
@@ -101,12 +106,13 @@ void EnvireGraphViz::itemAdded(const envire::core::TypedItemAddedEvent<envire::c
 
     // ----- Set Visual Representation
     mars::interfaces::NodeData nodeData = simNode->getSNode();
-    std::cout << "[EnvireGraphViz::itemAdded] Name: " << nodeData.name << " "
-                << nodeData.pos.x() << " " << nodeData.pos.y() << " " << nodeData.pos.z() << std::endl;
+    std::ostringstream log;
+    log << "[EnvireGraphViz::itemAdded] Name: " << nodeData.name << " "
+            << nodeData.pos.x() << " " << nodeData.pos.y() << " " << nodeData.pos.z() << std::endl;
 
     mars::interfaces::NodeId id = control->graphics->addDrawObject(nodeData, visual_rep & 1);
     if(id) {
-        std::cout << "setGraphicsID 1 " << std::endl;
+        log << "setGraphicsID 1 " << std::endl;
         simNode->setGraphicsID(id);
         uuidToGraphicsId[e.item->getID()] = id;
     }
@@ -135,11 +141,12 @@ void EnvireGraphViz::itemAdded(const envire::core::TypedItemAddedEvent<envire::c
 
         id = control->graphics->addDrawObject(physicalRep, visual_rep & 2);
         if(id) {
-            std::cout << "setGraphicsID 2 " << std::endl;
+            log << "setGraphicsID 2 " << std::endl;
             simNode->setGraphicsID2(id);
             uuidToGraphicsId2[e.item->getID()] = id;
         }
     }
+    LOG_DEBUG(log.str().c_str());
 }
 
 void EnvireGraphViz::itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::smurf::Joint>>& e)
@@ -165,6 +172,46 @@ void EnvireGraphViz::itemAdded(const envire::core::TypedItemAddedEvent<envire::c
 
         uuidToGraphicsId[e.item->getID()] = control->graphics->addDrawObject(node); //remeber graphics handle
     }
+}
+
+void EnvireGraphViz::updateMLSVis()
+{
+  envire::core::Transform simTf = EnvireStorageManager::instance()->getGraph()->getTransform(SIM_CENTER_FRAME_NAME, mlsFrameName);
+  osg::Vec3d vector;
+  osg::Quat quat;
+
+  vector.x() = simTf.transform.translation.x();
+  vector.y() = simTf.transform.translation.y();
+  vector.z() = simTf.transform.translation.z();
+
+  quat.x() = simTf.transform.orientation.x();
+  quat.y() = simTf.transform.orientation.y();
+  quat.z() = simTf.transform.orientation.z();
+  quat.w() = simTf.transform.orientation.w();
+
+  visTf->setPosition(vector);
+  visTf->setAttitude(quat);
+}
+
+void EnvireGraphViz::itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<maps::grid::MLSMapPrecalculated>>& e)
+{
+  LOG_DEBUG("[EnvireGraphViz::itemAdded<MLSMapPrecalculated>] Added an MLS to the graph, let's visualize it");
+
+  maps::grid::MLSMapPrecalculated map = e.item->getData();
+  osgNode = createMainNode(); // vizkit3d Protected
+  updateData(map);
+  updateMainNode(osgNode);// vizkit3d Protected
+  osgGroup = getVizNode();
+  mlsFrameName = e.frame;
+  visTf = new osg::PositionAttitudeTransform();
+  visTf->addChild(osgNode);
+  updateMLSVis();
+
+  if (!osgGroup){ LOG_DEBUG("[EnvireGraphViz::itemAdded<MLSMapPrecalculated>] The generated osgGroup is null");}
+  else {LOG_DEBUG("[EnvireGraphViz::itemAdded<MLSMapPrecalculated>] The OSG group is not null");}
+  control->graphics->addOSGNode(visTf);
+  // We don't get any id back from addOSGNode, so I guess we don't need the following:
+  //uuidToGraphicsId[e.item->getID()] = control->graphics->addDrawObject(node); //remeber graphics handle
 }
 
 void EnvireGraphViz::itemAdded(const envire::core::ItemAddedEvent& e)
