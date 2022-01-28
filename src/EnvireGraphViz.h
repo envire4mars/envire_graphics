@@ -27,6 +27,8 @@
 #pragma once
 // set define if you want to extend the gui
 //#define PLUGIN_WITH_MARS_GUI
+#include <vizkit3d/MLSMapVisualization.hpp>
+
 #include <string>
 #include <memory>
 #include <unordered_map>
@@ -51,7 +53,6 @@
 #include <envire_core/graph/TreeView.hpp>
 #include <envire_core/graph/Path.hpp>
 
-#include <vizkit3d/MLSMapVisualization.hpp>
 #include <maps/grid/MLSMap.hpp>
 
 namespace mars {

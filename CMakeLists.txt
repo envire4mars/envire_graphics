@@ -4,10 +4,13 @@ set(PROJECT_DESCRIPTION "Plugin")
 cmake_minimum_required(VERSION 2.6)
 include(FindPkgConfig)
 
-find_package(mars)
-mars_defaults()
+find_package(lib_manager)
+lib_defaults()
 define_module_info()
+set(CMAKE_CXX_STANDARD 14)
 
+set (QT_USE_QTOPENGL TRUE)
+setup_qt()
 
 pkg_check_modules(PKGCONFIG REQUIRED
                 lib_manager
@@ -60,14 +63,21 @@ install(FILES ${HEADERS} DESTINATION include/mars/plugins/${PROJECT_NAME})
 configure_file(${PROJECT_NAME}.pc.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc @ONLY)
 install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc DESTINATION lib/pkgconfig)
 
+if (${USE_QT5})
+qt5_use_modules(${PROJECT_NAME} Widgets OpenGL)
+endif (${USE_QT5})
+
+
 find_package(Rock)
 set(ROCK_USE_CXX11 TRUE)
 rock_init(envire_graphics 0.1)
 rock_standard_layout()
 
+
 find_package(Boost COMPONENTS system filesystem REQUIRED)
 target_link_libraries(envire_graphics
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
+  ${QT_LIBRARIES}
   )
 
