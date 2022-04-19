@@ -107,12 +107,9 @@ void EnvireGraphViz::itemAdded(const envire::core::TypedItemAddedEvent<envire::c
     // ----- Set Visual Representation
     mars::interfaces::NodeData nodeData = simNode->getSNode();
     std::ostringstream log;
-    log << "[EnvireGraphViz::itemAdded] Name: " << nodeData.name << " "
-            << nodeData.pos.x() << " " << nodeData.pos.y() << " " << nodeData.pos.z() << std::endl;
 
     mars::interfaces::NodeId id = control->graphics->addDrawObject(nodeData, visual_rep & 1);
     if(id) {
-        log << "setGraphicsID 1 " << std::endl;
         simNode->setGraphicsID(id);
         uuidToGraphicsId[e.item->getID()] = id;
     }
@@ -141,7 +138,6 @@ void EnvireGraphViz::itemAdded(const envire::core::TypedItemAddedEvent<envire::c
 
         id = control->graphics->addDrawObject(physicalRep, visual_rep & 2);
         if(id) {
-            log << "setGraphicsID 2 " << std::endl;
             simNode->setGraphicsID2(id);
             uuidToGraphicsId2[e.item->getID()] = id;
         }
