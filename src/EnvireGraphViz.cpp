@@ -46,10 +46,10 @@ using namespace mars::plugins::envire_managers;
 using vertex_descriptor = envire::core::GraphTraits::vertex_descriptor;
 
 //LOG_DEBUG with stringstream for easy conversion
-#define LOG_DEBUG_S(...) \
-  std::stringstream ss; \
-  ss << __VA_ARGS__; \
-  LOG_DEBUG(ss.str());
+//#define LOG_DEBUG_S(...) \
+//  std::stringstream ss; \
+//  ss << __VA_ARGS__; \
+//  LOG_DEBUG(ss.str());
 
 EnvireGraphViz::EnvireGraphViz(lib_manager::LibManager *theManager)
   : MarsPluginTemplate(theManager, "EnvireGraphViz"), GraphEventDispatcher()
@@ -98,15 +98,13 @@ void EnvireGraphViz::itemAdded(const envire::core::TypedItemAddedEvent<envire::c
 {
 
     // FIX: do we need? control->sim->sceneHasChanged(false);
-    LOG_DEBUG("[EnvireGraphViz::itemAdded] SimNode is added into the graph ");
-
     std::shared_ptr<mars::sim::SimNode> simNode = e.item->getData();
 
     int visual_rep = simNode->getVisualRep();
 
     // ----- Set Visual Representation
     mars::interfaces::NodeData nodeData = simNode->getSNode();
-    std::ostringstream log;
+    //std::ostringstream log;
 
     mars::interfaces::NodeId id = control->graphics->addDrawObject(nodeData, visual_rep & 1);
     if(id) {
@@ -142,7 +140,7 @@ void EnvireGraphViz::itemAdded(const envire::core::TypedItemAddedEvent<envire::c
             uuidToGraphicsId2[e.item->getID()] = id;
         }
     }
-    LOG_DEBUG(log.str().c_str());
+    //LOG_DEBUG(log.str().c_str());
 }
 
 void EnvireGraphViz::itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::smurf::Joint>>& e)
