@@ -191,6 +191,13 @@ void EnvireGraphViz::itemAdded(const envire::core::TypedItemAddedEvent<envire::c
 {
   LOG_DEBUG("[EnvireGraphViz::itemAdded<MLSMapPrecalculated>] Added an MLS to the graph, let's visualize it");
 
+  if (isConnectedSurface() == false)
+  {
+    std::cout << "EnvireGraphViz: for better mls visualisation we turned on connected surface"
+    //setConnectedSurfaceLOD(true);
+    setConnectedSurface(true);
+  }
+
   maps::grid::MLSMapPrecalculated map = e.item->getData();
   osgNode = createMainNode(); // vizkit3d Protected
   updateData(map);
@@ -204,6 +211,8 @@ void EnvireGraphViz::itemAdded(const envire::core::TypedItemAddedEvent<envire::c
   if (!osgGroup){ LOG_DEBUG("[EnvireGraphViz::itemAdded<MLSMapPrecalculated>] The generated osgGroup is null");}
   else {LOG_DEBUG("[EnvireGraphViz::itemAdded<MLSMapPrecalculated>] The OSG group is not null");}
   control->graphics->addOSGNode(visTf);
+
+
   // We don't get any id back from addOSGNode, so I guess we don't need the following:
   //uuidToGraphicsId[e.item->getID()] = control->graphics->addDrawObject(node); //remeber graphics handle
 }
