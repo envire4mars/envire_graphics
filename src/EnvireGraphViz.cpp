@@ -193,7 +193,7 @@ void EnvireGraphViz::itemAdded(const envire::core::TypedItemAddedEvent<envire::c
 
   if (isConnectedSurface() == false)
   {
-    std::cout << "EnvireGraphViz: for better mls visualisation we turned on connected surface"
+    std::cout << "EnvireGraphViz: for better mls visualisation we turned on connected surface" << std::endl;
     //setConnectedSurfaceLOD(true);
     setConnectedSurface(true);
   }
