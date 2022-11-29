@@ -27,7 +27,7 @@
 #pragma once
 // set define if you want to extend the gui
 //#define PLUGIN_WITH_MARS_GUI
-#include <vizkit3d/MLSMapVisualization.hpp>
+//#include <vizkit3d/MLSMapVisualization.hpp>
 
 #include <string>
 #include <memory>
@@ -52,13 +52,12 @@
 #include <envire_core/items/ItemBase.hpp>
 #include <envire_core/graph/TreeView.hpp>
 #include <envire_core/graph/Path.hpp>
+#include <osg/Group>
 
-#include <maps/grid/MLSMap.hpp>
 
 namespace mars {
   namespace plugins {
     namespace envire_graphics {
-      //TODO do we need inheritance from MLSMapsVisualization
       /**
        * A very simple plugin that tries to convert all ConfigMaps found in the
        * transform graph into NodeData and draw it.
@@ -66,9 +65,7 @@ namespace mars {
       class EnvireGraphViz : public mars::interfaces::MarsPluginTemplate,
                              public envire::core::GraphEventDispatcher,
                              public envire::core::GraphItemEventDispatcher<envire::core::Item<::smurf::Joint>>,
-                             public envire::core::GraphItemEventDispatcher<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>,
-                             public envire::core::GraphItemEventDispatcher<envire::core::Item<maps::grid::MLSMapPrecalculated>>,
-                             public vizkit3d::MLSMapVisualization
+                             public envire::core::GraphItemEventDispatcher<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>
       {
 
       public:
@@ -89,8 +86,6 @@ namespace mars {
         
         virtual void itemAdded(const envire::core::ItemAddedEvent& e);
         virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::smurf::Joint>>& e);
-        //virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<maps::grid::MLSMapKalman>>& e);
-        virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<maps::grid::MLSMapPrecalculated>>& e);
 
         virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>& e);
 
@@ -105,8 +100,6 @@ namespace mars {
          */
         void updateTree(const envire::core::FrameId& origin);
         
-        //update the visualization of the MLS (called by updateVisuals)
-        void updateMLSVis();
         //update position of all visuals
         void updateVisuals();
 
@@ -133,7 +126,6 @@ namespace mars {
         osg::ref_ptr<osg::Group> osgGroup;
         osg::ref_ptr<osg::Node>  osgNode;
         osg::PositionAttitudeTransform* visTf;
-        envire::core::FrameId mlsFrameName;
 
 
       }; // end of class definition TestTreeMars

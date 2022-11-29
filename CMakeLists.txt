@@ -3,6 +3,7 @@ set(PROJECT_VERSION 1.0)
 set(PROJECT_DESCRIPTION "Plugin")
 cmake_minimum_required(VERSION 2.6)
 include(FindPkgConfig)
+include(CheckIncludeFileCXX)
 
 find_package(lib_manager)
 lib_defaults()
@@ -11,6 +12,29 @@ set(CMAKE_CXX_STANDARD 14)
 
 set (QT_USE_QTOPENGL TRUE)
 setup_qt()
+
+
+pkg_check_modules(OSGQT openscenegraph-osgQt5)
+if(OSGQT_FOUND)
+find_package(OpenSceneGraph REQUIRED osgManipulator osgViewer osgFX osgShadow osgParticle osgTerrain osgDB osgGA osgWidget osgText osgUtil)
+
+include_directories(${OSGQT_INCLUDE_DIRS})
+link_directories(${OSGQT_LIBRARY_DIRS})
+add_definitions(${OSGQT_CFLAGS_OTHER})  #cflags without -I
+
+else()
+find_package(OpenSceneGraph REQUIRED osgManipulator osgViewer osgFX osgShadow osgParticle osgTerrain osgDB osgGA osgWidget osgText osgUtil osgQt)
+endif()
+
+include_directories(${OPENSCENEGRAPH_INCLUDE_DIRS})
+link_directories(${OPENSCENEGRAPH_LIBRARY_DIRS})
+
+
+set (CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${OPENSCENEGRAPH_INCLUDE_DIRS})
+CHECK_INCLUDE_FILE_CXX("osg/Version" HAVE_OSG_VERSION_H)
+if(${HAVE_OSG_VERSION_H})
+    ADD_DEFINITIONS(-DHAVE_OSG_VERSION_H)
+endif()
 
 pkg_check_modules(PKGCONFIG REQUIRED
                 lib_manager
@@ -21,9 +45,8 @@ pkg_check_modules(PKGCONFIG REQUIRED
                 envire_core
                 smurf
                 envire_managers
-                maps
-                maps-viz
-                vizkit3d
+                #maps
+                #maps-viz
                 )
 
 include_directories(${PKGCONFIG_INCLUDE_DIRS})
@@ -36,6 +59,7 @@ add_library(${PROJECT_NAME} SHARED ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME}
                       ${PKGCONFIG_LIBRARIES}
+                      ${OPENSCENEGRAPH_LIBRARIES}
 )
 
 if(WIN32)
