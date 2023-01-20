@@ -58,16 +58,15 @@ EnvireGraphViz::EnvireGraphViz(lib_manager::LibManager *theManager)
     // change the name of origin id from center into the world
     updateTree(SIM_CENTER_FRAME_NAME);
 
-    assert(EnvireStorageManager::instance()->getGraph() != nullptr);
+    assert(control->storage->getGraph() != nullptr);
 
-    GraphEventDispatcher::subscribe(EnvireStorageManager::instance()->getGraph().get());
+    GraphEventDispatcher::subscribe(control->storage->getGraph().get());
 
-    GraphItemEventDispatcher<envire::core::Item<::smurf::Joint>>::subscribe(EnvireStorageManager::instance()->getGraph().get());
-    GraphItemEventDispatcher<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>::subscribe(EnvireStorageManager::instance()->getGraph().get());
-    GraphItemEventDispatcher<envire::core::Item<maps::grid::MLSMapPrecalculated>>::subscribe(EnvireStorageManager::instance()->getGraph().get());
+    GraphItemEventDispatcher<envire::core::Item<::smurf::Joint>>::subscribe(control->storage->getGraph().get());
+    GraphItemEventDispatcher<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>::subscribe(control->storage->getGraph().get());
+    GraphItemEventDispatcher<envire::core::Item<maps::grid::MLSMapPrecalculated>>::subscribe(control->storage->getGraph().get());
 
-
-    if (!EnvireStorageManager::instance()->getGraph()->containsFrame(SIM_CENTER_FRAME_NAME))
+    if (!control->storage->getGraph()->containsFrame(SIM_CENTER_FRAME_NAME))
     {
       throw std::runtime_error("Graph has no Center Frame");
     }
@@ -88,7 +87,7 @@ void EnvireGraphViz::setPos(const envire::core::FrameId& frame, mars::interfaces
       fromOrigin.setTransform(base::TransformWithCovariance::Identity());
     }
     else {
-      fromOrigin = EnvireStorageManager::instance()->getGraph()->getTransform(SIM_CENTER_FRAME_NAME, frame);
+      fromOrigin = control->storage->getGraph()->getTransform(SIM_CENTER_FRAME_NAME, frame);
     }
     node.pos = fromOrigin.transform.translation;
     node.rot = fromOrigin.transform.orientation;
@@ -150,7 +149,7 @@ void EnvireGraphViz::itemAdded(const envire::core::TypedItemAddedEvent<envire::c
         const envire::core::FrameId source = e.item->getData().getSourceFrame().getName();
         const envire::core::FrameId target = e.item->getData().getTargetFrame().getName();
 
-        const envire::core::Transform tf = EnvireStorageManager::instance()->getGraph()->getTransform(source, target);
+        const envire::core::Transform tf = control->storage->getGraph()->getTransform(source, target);
         const double length = tf.transform.translation.norm();
         base::Vector3d extents(0.01, length, 0);
 
@@ -159,8 +158,8 @@ void EnvireGraphViz::itemAdded(const envire::core::TypedItemAddedEvent<envire::c
         node.material.emissionFront = mars::utils::Color(0.0, 1.0, 0.0, 1.0);
         node.material.transparency = 0.5;
 
-        const envire::core::Transform originToSource = EnvireStorageManager::instance()->getGraph()->getTransform(SIM_CENTER_FRAME_NAME, source);
-        const envire::core::Transform originToTarget = EnvireStorageManager::instance()->getGraph()->getTransform(SIM_CENTER_FRAME_NAME, target);
+        const envire::core::Transform originToSource = control->storage->getGraph()->getTransform(SIM_CENTER_FRAME_NAME, source);
+        const envire::core::Transform originToTarget = control->storage->getGraph()->getTransform(SIM_CENTER_FRAME_NAME, target);
         node.pos = (originToSource.transform.translation + originToTarget.transform.translation) / 2.0;
         node.rot = e.item->getData().getParentToJointOrigin().rotation();
 
@@ -170,7 +169,7 @@ void EnvireGraphViz::itemAdded(const envire::core::TypedItemAddedEvent<envire::c
 
 void EnvireGraphViz::updateMLSVis()
 {
-  envire::core::Transform simTf = EnvireStorageManager::instance()->getGraph()->getTransform(SIM_CENTER_FRAME_NAME, mlsFrameName);
+  envire::core::Transform simTf = control->storage->getGraph()->getTransform(SIM_CENTER_FRAME_NAME, mlsFrameName);
   osg::Vec3d vector;
   osg::Quat quat;
 
@@ -191,12 +190,17 @@ void EnvireGraphViz::itemAdded(const envire::core::TypedItemAddedEvent<envire::c
 {
   LOG_DEBUG("[EnvireGraphViz::itemAdded<MLSMapPrecalculated>] Added an MLS to the graph, let's visualize it");
 
-  if (isConnectedSurface() == false)
-  {
-    std::cout << "EnvireGraphViz: for better mls visualisation we turned on connected surface" << std::endl;
-    //setConnectedSurfaceLOD(true);
-    setConnectedSurface(true);
-  }
+  //if (isConnectedSurface() == false)
+  //{
+  //  std::cout << "EnvireGraphViz: for better mls visualisation we turned on connected surface" << std::endl;
+  //  //setConnectedSurfaceLOD(true);
+  //  setConnectedSurface(true);
+  //}
+    if (visTf.valid())
+        control->graphics->removeOSGNode(visTf);
+
+
+    setShowMapExtents(true);
 
   maps::grid::MLSMapPrecalculated map = e.item->getData();
   osgNode = createMainNode(); // vizkit3d Protected
@@ -215,6 +219,12 @@ void EnvireGraphViz::itemAdded(const envire::core::TypedItemAddedEvent<envire::c
 
   // We don't get any id back from addOSGNode, so I guess we don't need the following:
   //uuidToGraphicsId[e.item->getID()] = control->graphics->addDrawObject(node); //remeber graphics handle
+}
+
+void EnvireGraphViz::itemRemoved(const envire::core::TypedItemAddedEvent<envire::core::Item<maps::grid::MLSMapPrecalculated>>& e) {
+    std::cout << "ITEM REMOVED" << std::endl;
+    if (visTf.valid())
+        control->graphics->removeOSGNode(visTf);
 }
 
 void EnvireGraphViz::itemAdded(const envire::core::ItemAddedEvent& e)
@@ -276,10 +286,10 @@ void EnvireGraphViz::cfgUpdateProperty(cfg_manager::cfgPropertyStruct _property)
 
 void EnvireGraphViz::updateTree(const envire::core::FrameId& origin)
 {
-  const vertex_descriptor newOrigin = EnvireStorageManager::instance()->getGraph()->vertex(origin);
-  assert(newOrigin != EnvireStorageManager::instance()->getGraph()->null_vertex());
+  const vertex_descriptor newOrigin = control->storage->getGraph()->vertex(origin);
+  assert(newOrigin != control->storage->getGraph()->null_vertex());
   tree.clear();
-  EnvireStorageManager::instance()->getGraph()->getTree(newOrigin, true, &tree);
+  control->storage->getGraph()->getTree(newOrigin, true, &tree);
 }
 
 
@@ -299,7 +309,7 @@ void EnvireGraphViz::updateVisuals()
 /**Updates the drawing position of @p vertex */
 template <class physicsType> void EnvireGraphViz::updatePosition(const vertex_descriptor vertex)
 {
-  const envire::core::FrameId& frameId = EnvireStorageManager::instance()->getGraph()->getFrameId(vertex);
+  const envire::core::FrameId& frameId = control->storage->getGraph()->getFrameId(vertex);
   base::Vector3d translation;
   base::Quaterniond orientation;
   if(SIM_CENTER_FRAME_NAME.compare(frameId) == 0)
@@ -312,16 +322,16 @@ template <class physicsType> void EnvireGraphViz::updatePosition(const vertex_de
     if(pathsFromOrigin.find(vertex) == pathsFromOrigin.end())
     {
       //this is an unknown vertex, find the path and store it
-      pathsFromOrigin[vertex] = EnvireStorageManager::instance()->getGraph()->getPath(SIM_CENTER_FRAME_NAME, frameId, true);
+      pathsFromOrigin[vertex] = control->storage->getGraph()->getPath(SIM_CENTER_FRAME_NAME, frameId, true);
     }
-    const envire::core::Transform tf = EnvireStorageManager::instance()->getGraph()->getTransform(pathsFromOrigin[vertex]);
+    const envire::core::Transform tf = control->storage->getGraph()->getTransform(pathsFromOrigin[vertex]);
     translation = tf.transform.translation;
     orientation = tf.transform.orientation;
   }
 
   using Iterator = envire::core::EnvireGraph::ItemIterator<physicsType>;
   Iterator begin, end;
-  boost::tie(begin, end) = EnvireStorageManager::instance()->getGraph()->getItems<physicsType>(vertex);
+  boost::tie(begin, end) = control->storage->getGraph()->getItems<physicsType>(vertex);
   for(;begin != end; ++begin)
   {
     const physicsType& item = *begin;
