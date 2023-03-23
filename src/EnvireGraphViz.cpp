@@ -201,6 +201,7 @@ void EnvireGraphViz::itemAdded(const envire::core::TypedItemAddedEvent<envire::c
 
 
     setShowMapExtents(true);
+    setConnectedSurface(true);
 
   maps::grid::MLSMapPrecalculated map = e.item->getData();
   osgNode = createMainNode(); // vizkit3d Protected
