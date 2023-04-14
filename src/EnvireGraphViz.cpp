@@ -201,7 +201,7 @@ void EnvireGraphViz::itemAdded(const envire::core::TypedItemAddedEvent<envire::c
 
 
     setShowMapExtents(true);
-    setConnectedSurface(true);
+    //setConnectedSurface(true);
     //setShowNormals(true);
 
   maps::grid::MLSMapPrecalculated map = e.item->getData();
